@@ -1,0 +1,59 @@
+#Upload Dataset to Colab
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.svm import SVC
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from sklearn.preprocessing import StandardScaler
+import seaborn as sns
+
+data = pd.read_csv("filename.csv")   # change filename
+
+print(data.head())
+print("\nShape:", data.shape)
+
+X = data.iloc[:, :-1]    # all columns except last
+y = data.iloc[:, -1]     # last column as label
+
+X = X.dropna()
+y = y.loc[X.index]
+
+scaler = StandardScaler()
+X = scaler.fit_transform(X)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y,
+                                                    test_size=0.3,
+                                                    random_state=42)
+
+svm = SVC(kernel='rbf')   # kernel = linear / poly / rbf / sigmoid
+svm.fit(X_train, y_train)
+
+y_pred = svm.predict(X_test)
+
+#PERFORMANCE EVALUATION
+
+accuracy = accuracy_score(y_test, y_pred)
+print("Accuracy:", accuracy)
+
+cm = confusion_matrix(y_test, y_pred)
+print("Confusion Matrix:\n", cm)
+
+# Plot confusion matrix
+plt.figure(figsize=(6,4))
+sns.heatmap(cm, annot=True, fmt="d", cmap="Blues")
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.title("Confusion Matrix")
+plt.show()
+
+print("\nClassification Report:\n")
+print(classification_report(y_test, y_pred))
+
+#Try Different Kernels
+for k in ['linear', 'rbf', 'poly', 'sigmoid']:
+    model = SVC(kernel=k)
+    model.fit(X_train, y_train)
+    pred = model.predict(X_test)
+    print(f"Kernel: {k} | Accuracy:", accuracy_score(y_test, pred))

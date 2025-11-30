@@ -1,0 +1,71 @@
+# Cell 1
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from sklearn.neural_network import MLPClassifier
+
+# Cell 2
+from sklearn.datasets import make_classification
+
+X, y = make_classification(n_samples=500, 
+                           n_features=2, 
+                           n_classes=2,
+                           n_redundant=0, 
+                           n_informative=2,
+                           random_state=42)
+
+plt.scatter(X[:,0], X[:,1], c=y)
+plt.title("Input Dataset")
+plt.show()
+
+# Cell 3
+X_train, X_test, y_train, y_test = train_test_split(X, y, 
+                                                    test_size=0.3, 
+                                                    random_state=42)
+
+# Cell 4
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Cell 5
+mlp = MLPClassifier(hidden_layer_sizes=(10, 10),   # two hidden layers
+                    activation='relu',
+                    solver='adam',
+                    max_iter=1000,
+                    random_state=42)
+
+# Cell 6
+mlp.fit(X_train, y_train)
+
+# Cell 7
+y_pred = mlp.predict(X_test)
+
+# Cell 8
+accuracy = accuracy_score(y_test, y_pred)
+cm = confusion_matrix(y_test, y_pred)
+
+print("Accuracy:", accuracy)
+print("\nConfusion Matrix:\n", cm)
+
+print("\nClassification Report:\n")
+print(classification_report(y_test, y_pred))
+
+
+# Cell 9
+def plot_decision_boundary(X, y, model):
+    x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
+    y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+    xx, yy = np.meshgrid(np.linspace(x_min, x_max, 200),
+                         np.linspace(y_min, y_max, 200))
+    Z = model.predict(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+    plt.contourf(xx, yy, Z, alpha=0.3)
+    plt.scatter(X[:, 0], X[:, 1], c=y, edgecolors='k')
+    plt.title("MLP Decision Boundary")
+    plt.show()
+
+plot_decision_boundary(X_test, y_test, mlp)
+

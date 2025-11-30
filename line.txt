@@ -1,0 +1,43 @@
+#Upload Dataset
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+data = pd.read_csv("yourfile.csv")
+print(data.head())
+print("Dataset shape:", data.shape)
+
+X = data.iloc[:, 0].values
+Y = data.iloc[:, -1].values
+
+n = len(X)
+
+mean_x = np.mean(X)
+mean_y = np.mean(Y)
+
+num = 0
+den = 0
+
+for i in range(n):
+    num += (X[i] - mean_x) * (Y[i] - mean_y)
+    den += (X[i] - mean_x) ** 2
+
+m = num / den
+c = mean_y - m * mean_x
+
+print("Slope (m):", m)
+print("Intercept (c):", c)
+print("Equation: y =", m, "* x +", c)
+
+Y_pred = m * X + c
+
+plt.scatter(X, Y, color="blue", label="Original Data")
+plt.plot(X, Y_pred, color="red", label="Best Fit Line")
+plt.xlabel("X values")
+plt.ylabel("Y values")
+plt.title("Line Fitting Graph")
+plt.legend()
+plt.show()
+
+mse = np.mean((Y - Y_pred) ** 2)
+print("Mean Squared Error:", mse)
